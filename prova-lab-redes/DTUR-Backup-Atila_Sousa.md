@@ -1,16 +1,16 @@
 # Servidor de Backup para o Departamento de Turismo (DTUR)
-###Autor
+## Autor:
 Átila Bernardo Mota Sousa
 
-###Descrição
+## Descrição:
 
-###Protocolo de transporte
+## Protocolo de transporte:
 TCP
 
-###Número de porta:
+## Número de porta:
 12000
 
-###Formato das mensagens:
+## Formato das mensagens:
 .txt
 
 
