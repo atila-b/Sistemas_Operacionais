@@ -1,0 +1,251 @@
+node n1 {
+    type router
+    model host
+    network-config {
+	hostname DTUR
+	!
+	interface eth0
+	 ip address 192.0.2.10/24
+	 ipv6 address 2001:db8:0::10/64
+	!
+    }
+    canvas c1
+    iconcoords {254.0 94.0}
+    labelcoords {254.0 77.0}
+    interface-peer {eth0 n5}
+    custom-config {
+	custom-config-id service:UserDefined
+	custom-command UserDefined
+	config {
+	files=('O_Servidor.py', )
+	cmdup=('python O_Servidor.py', )
+	meta=Servidor .
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:O_Servidor.py
+	custom-command O_Servidor.py
+	config {
+	from socket import *
+	import os
+	
+	portaServidor = 12000
+	
+	socketServidor = socket (AF_INET, SOCK_STREAM)
+	
+	socketServidor.bind (('192.0.2.10', portaServidor))
+	
+	socketServidor.listen (1)
+	
+	# Python 2
+	print "O servidor esta pronto para receber"
+	
+	path = os.path.join("./", "backup")
+	os.mkdir(path)
+	
+	while 1 :
+	    socketConexao, endereco = socketServidor.accept ()
+	    arq = open('./backup/' + endereco[0] + '.txt', 'a')
+	    dados = socketConexao.recv(1024)
+	    if not dados:
+		break
+	    arq.write(dados + '\n')
+	    arq.close()
+	    print "Dados recebidos de " + str(endereco[0])
+	
+	socketConexao.close
+	}
+    }
+    services {DefaultRoute SSH UserDefined}
+}
+
+node n2 {
+    type router
+    model PC
+    network-config {
+	hostname aluno1
+	!
+	interface eth0
+	 ip address 192.0.3.20/24
+	 ipv6 address 2001:db8:1::20/64
+	!
+    }
+    canvas c1
+    iconcoords {505.0 72.0}
+    labelcoords {507.0 50.0}
+    interface-peer {eth0 n4}
+    custom-config {
+	custom-config-id service:UserDefined
+	custom-command UserDefined
+	config {
+	files=('O_Cliente.py', 'mensagem.txt', )
+	cmdup=('python O_Cliente.py', )
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:mensagem.txt
+	custom-command mensagem.txt
+	config {
+	Host 'aluno1' foi inicializado com sucesso!
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:O_Cliente.py
+	custom-command O_Cliente.py
+	config {
+	# Importacao da biblioteca de socket
+	from socket import *
+	
+	nomeServidor = '192.0.2.10'
+	
+	portaServidor = 12000
+	
+	socketCliente = socket (AF_INET, SOCK_STREAM)
+	
+	socketCliente.connect ((nomeServidor, portaServidor))
+	
+	arq = open('./mensagem.txt', 'r')
+	
+	for i in arq.readlines():
+	    socketCliente.send(i)
+	
+	arq.close()
+	socketCliente.close()
+	}
+    }
+    services {DefaultRoute UserDefined}
+}
+
+node n3 {
+    type router
+    model PC
+    network-config {
+	hostname aluno2
+	!
+	interface eth0
+	 ip address 192.0.3.21/24
+	 ipv6 address 2001:db8:1::21/64
+	!
+    }
+    canvas c1
+    iconcoords {706.0 108.0}
+    labelcoords {708.0 86.0}
+    interface-peer {eth0 n4}
+    custom-config {
+	custom-config-id service:UserDefined
+	custom-command UserDefined
+	config {
+	files=('O_Cliente.py', 'mensagem.txt', )
+	cmdup=('python O_Cliente.py', )
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:mensagem.txt
+	custom-command mensagem.txt
+	config {
+	Host 'aluno2' foi inicializado com sucesso!
+	}
+    }
+    custom-config {
+	custom-config-id service:UserDefined:O_Cliente.py
+	custom-command O_Cliente.py
+	config {
+	# Importacao da biblioteca de socket
+	from socket import *
+	
+	nomeServidor = '192.0.2.10'
+	
+	portaServidor = 12000
+	
+	socketCliente = socket (AF_INET, SOCK_STREAM)
+	
+	socketCliente.connect ((nomeServidor, portaServidor))
+	
+	arq = open('./mensagem.txt', 'r')
+	
+	for i in arq.readlines():
+	    socketCliente.send(i)
+	
+	arq.close()
+	socketCliente.close()
+	}
+    }
+    services {DefaultRoute UserDefined}
+}
+
+node n4 {
+    type lanswitch
+    network-config {
+	hostname Lab
+	!
+    }
+    canvas c1
+    iconcoords {539.0 224.0}
+    labelcoords {539.0 248.0}
+    interface-peer {e0 n5}
+    interface-peer {e1 n2}
+    interface-peer {e2 n3}
+}
+
+node n5 {
+    type router
+    model router
+    network-config {
+	hostname STI
+	!
+	interface eth1
+	 ip address 192.0.3.1/24
+	 ipv6 address 2001:db8:1::1/64
+	!
+	interface eth0
+	 ip address 192.0.2.1/24
+	 ipv6 address 2001:db8:0::1/64
+	!
+    }
+    canvas c1
+    iconcoords {332.0 299.0}
+    labelcoords {332.0 331.0}
+    interface-peer {eth0 n1}
+    interface-peer {eth1 n4}
+}
+
+link l1 {
+    nodes {n5 n1}
+    bandwidth 0
+}
+
+link l2 {
+    nodes {n5 n4}
+    bandwidth 0
+}
+
+link l3 {
+    nodes {n2 n4}
+    bandwidth 0
+}
+
+link l4 {
+    nodes {n3 n4}
+    bandwidth 0
+}
+
+canvas c1 {
+    name {Canvas1}
+}
+
+option global {
+    interface_names no
+    ip_addresses yes
+    ipv6_addresses yes
+    node_labels yes
+    link_labels yes
+    show_api no
+    background_images no
+    annotations yes
+    grid yes
+    traffic_start 0
+}
+
+option session {
+}
+
