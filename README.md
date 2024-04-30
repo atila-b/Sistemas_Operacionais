@@ -1,6 +1,6 @@
 # Sistemas_Operacionais
 
-Repositório de códigos para as projetos de Sistemas Operacionais
+Repositório de códigos para projetos de Sistemas Operacionais
 
 ## Array List Thread Safe
 
